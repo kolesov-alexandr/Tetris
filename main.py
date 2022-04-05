@@ -36,7 +36,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        screen.fill(pygame.Color("royalblue"))
+        screen.fill(pygame.Color("midnightblue"))
         board.render(screen)
         pygame.display.flip()
 
