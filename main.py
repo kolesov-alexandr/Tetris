@@ -51,6 +51,21 @@ class Figure:
                         board.cell_size,
                         board.cell_size))
 
+    def rotate_left(self):
+        self.current_shape = (self.current_shape + 1) % 4
+
+    def rotate_right(self):
+        self.current_shape = (self.current_shape - 1) % 4
+
+    def move_left(self):
+        self.current_pos = (self.current_pos[0] - 1, self.current_pos[1])
+
+    def move_right(self):
+        self.current_pos = (self.current_pos[0] + 1, self.current_pos[1])
+
+    def move_down(self):
+        self.current_pos = (self.current_pos[0], self.current_pos[1] + 1)
+
 
 class TFigure(Figure):
     def __init__(self, color):
