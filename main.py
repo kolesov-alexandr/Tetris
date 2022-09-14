@@ -82,6 +82,12 @@ class QFigure(Figure):
         self.current_shape = 0
         self.shapes = [[[1, 1], [1, 1]]]
 
+    def rotate_left(self):
+        pass
+
+    def rotate_right(self):
+        pass
+
 
 class IFigure(Figure):
     def __init__(self, color):
@@ -89,6 +95,12 @@ class IFigure(Figure):
         self.current_shape = randrange(2)
         self.shapes = [[[1], [1], [1], [1]],
                        [[1, 1, 1, 1]]]
+
+    def rotate_left(self):
+        self.current_shape = (self.current_shape + 1) % 2
+
+    def rotate_right(self):
+        self.current_shape = (self.current_shape - 1) % 2
 
 
 class ZFigure(Figure):
@@ -98,6 +110,12 @@ class ZFigure(Figure):
         self.shapes = [[[1, 1, 0], [0, 1, 1]],
                        [[0, 1], [1, 1], [1, 0]]]
 
+    def rotate_left(self):
+        self.current_shape = (self.current_shape + 1) % 2
+
+    def rotate_right(self):
+        self.current_shape = (self.current_shape - 1) % 2
+
 
 class SFigure(Figure):
     def __init__(self, color):
@@ -105,6 +123,12 @@ class SFigure(Figure):
         self.current_shape = randrange(2)
         self.shapes = [[[0, 1, 1], [1, 1, 0]],
                        [[1, 0], [1, 1], [0, 1]]]
+
+    def rotate_left(self):
+        self.current_shape = (self.current_shape + 1) % 2
+
+    def rotate_right(self):
+        self.current_shape = (self.current_shape - 1) % 2
 
 
 class JFigure(Figure):
