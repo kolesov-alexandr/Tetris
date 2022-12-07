@@ -282,6 +282,7 @@ def main():
     board = Board(10, 15)
     board.set_view(75, 100, 23)
     running = True
+    pygame.time.set_timer(pygame.USEREVENT, 1000)
     while running:
         if board.get_current_figure():
             current_figure = board.get_current_figure()
@@ -308,6 +309,8 @@ def main():
                     current_figure.rotate_left()
                 if event.button == 3:
                     current_figure.rotate_right()
+            if event.type == pygame.USEREVENT:
+                current_figure.move_down()
         screen.fill(pygame.Color("grey"))
         board.render(screen)
         pygame.display.flip()
