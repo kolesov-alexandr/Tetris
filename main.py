@@ -13,6 +13,7 @@ class Board:
         self.cell_size = 30
         self.passive_figures = []
         self.current_figure = None
+        self.score = 0
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -26,6 +27,7 @@ class Board:
         self.passive_figures.append(self.current_figure)
         self.current_figure.make_passive()
         self.current_figure = None
+        self.clear_full_rows()
 
     def render(self, screen):
         pygame.draw.rect(screen, pygame.Color("white"), (
@@ -43,6 +45,35 @@ class Board:
 
     def get_current_figure(self):
         return self.current_figure
+
+    def clear_full_rows(self):
+        self.board = [[0] * self.width for _ in range(self.height)]
+        for fig in self.passive_figures:
+            for x in range(len(fig.shapes[fig.current_shape][0])):
+                for y in range(len(fig.shapes[fig.current_shape])):
+                    if fig.shapes[fig.current_shape][y][x] == 1:
+                        self.board[fig.current_pos[1] + y][fig.current_pos[0] + x] = 1
+        cleared_rows_count = 0
+        for row in range(len(self.board)):
+            if 0 not in self.board[row]:
+                for fig in self.passive_figures:
+                    fig.shapes[fig.current_shape].append([0] * len(fig.shapes[fig.current_shape][0]))
+                    flag1 = False
+                    flag2 = False
+                    for y in range(len(fig.shapes[fig.current_shape]) - 2, -1, -1):
+                        if fig.current_pos[1] + y == row:
+                            fig.shapes[fig.current_shape][y] = [0] * len(fig.shapes[fig.current_shape][0])
+                            flag1 = True
+                        elif fig.current_pos[1] + y < row:
+                            fig.shapes[fig.current_shape][y + 1] = fig.shapes[fig.current_shape][y]
+                            flag2 = True
+                    if flag2:
+                        fig.shapes[fig.current_shape] = fig.shapes[fig.current_shape][1:]
+                        fig.current_pos = fig.current_pos[0], fig.current_pos[1] + 1
+                    if flag1 or not flag2:
+                        fig.shapes[fig.current_shape].pop()
+                cleared_rows_count += 1
+        self.score += cleared_rows_count * 100
 
 
 class Figure:
@@ -283,6 +314,9 @@ def main():
     board.set_view(75, 100, 23)
     running = True
     pygame.time.set_timer(pygame.USEREVENT, 1000)
+    font_text = pygame.font.Font(None, 35)
+    font_number_text = pygame.font.Font(None, 30)
+    count_text = font_text.render("Счёт:", True, pygame.Color("red"))
     while running:
         if board.get_current_figure():
             current_figure = board.get_current_figure()
@@ -292,6 +326,7 @@ def main():
             if current_figure.is_intersection():
                 while current_figure.is_intersection():
                     current_figure.current_pos = current_figure.current_pos[0], current_figure.current_pos[1] - 1
+            pygame.time.set_timer(pygame.USEREVENT, 1000)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -313,6 +348,9 @@ def main():
                 current_figure.move_down()
         screen.fill(pygame.Color("grey"))
         board.render(screen)
+        count_number_text = font_number_text.render(str(board.score), True, pygame.Color("red"))
+        screen.blit(count_text, (400, 100))
+        screen.blit(count_number_text, (400 + count_text.get_width() // 2 - count_number_text.get_width() // 2, 150))
         pygame.display.flip()
 
 
