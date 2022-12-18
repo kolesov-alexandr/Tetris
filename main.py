@@ -1,11 +1,12 @@
 import sys
 import pygame
 import sqlite3
+import os
 
 from random import randrange, choice
 
-VOCABULARY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-              'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+VOCABULARY = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
+              "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 MELODIES = ["ghost_fight", "heartache", "bonetrousle", "spear_of_justice", "metal_crusher", "spider_dance",
             "death_by_glamour", "asgore", "hopes_and_dreams", "save_the_world", "battle_against_a_true_hero",
             "megalovania"]
@@ -317,8 +318,10 @@ COLORS = ["red", "blue", "violet", "yellow", "green", "lightblue"]
 
 def beginning():
     pygame.init()
+    with open("data/volume.txt") as volume_file:
+        volume = int(volume_file.readline())
     pygame.mixer.music.load("data/start_menu.mp3")
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(volume / 100)
     pygame.mixer.music.play(-1)
     pygame.display.set_caption("Тетрис")
     size = width, height = 600, 600
@@ -330,16 +333,24 @@ def beginning():
     screen.blit(tetris_text, (300 - tetris_text.get_width() // 2, 150))
     font_buttons = pygame.font.Font(None, 30)
     begin_text = font_buttons.render("Начать", True, pygame.Color("red"))
-    screen.blit(begin_text, (300 - begin_text.get_width() // 2, 300))
-    pygame.draw.rect(screen, pygame.Color("red"), (300 - begin_text.get_width() // 2 - 10, 290,
+    screen.blit(begin_text, (300 - begin_text.get_width() // 2, 270))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - begin_text.get_width() // 2 - 10, 260,
                                                    begin_text.get_width() + 20, begin_text.get_height() + 20), 1)
+    options_text = font_buttons.render("Настройки", True, pygame.Color("red"))
+    screen.blit(options_text, (300 - options_text.get_width() // 2, 330))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - options_text.get_width() // 2 - 10, 320,
+                                                   options_text.get_width() + 20, options_text.get_height() + 20), 1)
     records_text = font_buttons.render("Рекорды", True, pygame.Color("red"))
-    screen.blit(records_text, (300 - records_text.get_width() // 2, 360))
-    pygame.draw.rect(screen, pygame.Color("red"), (300 - records_text.get_width() // 2 - 10, 350,
+    screen.blit(records_text, (300 - records_text.get_width() // 2, 390))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - records_text.get_width() // 2 - 10, 380,
                                                    records_text.get_width() + 20, records_text.get_height() + 20), 1)
+    help_text = font_buttons.render("Как играть", True, pygame.Color("red"))
+    screen.blit(help_text, (300 - help_text.get_width() // 2, 450))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - help_text.get_width() // 2 - 10, 440,
+                                                   help_text.get_width() + 20, help_text.get_height() + 20), 1)
     exit_text = font_buttons.render("Выйти", True, pygame.Color("red"))
-    screen.blit(exit_text, (300 - exit_text.get_width() // 2, 420))
-    pygame.draw.rect(screen, pygame.Color("red"), (300 - exit_text.get_width() // 2 - 10, 410,
+    screen.blit(exit_text, (300 - exit_text.get_width() // 2, 510))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - exit_text.get_width() // 2 - 10, 500,
                                                    exit_text.get_width() + 20, exit_text.get_height() + 20), 1)
     pygame.display.flip()
     while running:
@@ -349,15 +360,106 @@ def beginning():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 x, y = event.pos
                 if 300 - begin_text.get_width() // 2 - 10 <= x <= 300 + begin_text.get_width() // 2 + 10 and \
-                        290 <= y <= 300 + begin_text.get_height() + 10:
+                        260 <= y <= 270 + begin_text.get_height() + 10:
                     running = False
+                if 300 - options_text.get_width() // 2 - 10 <= x <= 300 + options_text.get_width() // 2 + 10 and \
+                        320 <= y <= 330 + options_text.get_height() + 10:
+                    running = False
+                    options()
                 if 300 - records_text.get_width() // 2 - 10 <= x <= 300 + records_text.get_width() // 2 + 10 and \
-                        350 <= y <= 360 + records_text.get_height() + 10:
+                        380 <= y <= 390 + records_text.get_height() + 10:
                     running = False
                     records()
+                if 300 - help_text.get_width() // 2 - 10 <= x <= 300 + help_text.get_width() // 2 + 10 and \
+                        440 <= y <= 450 + help_text.get_height() + 10:
+                    os.system("start data/help.docx")
                 if 300 - exit_text.get_width() // 2 - 10 <= x <= 300 + exit_text.get_width() // 2 + 10 and \
-                        410 <= y <= 420 + exit_text.get_height() + 10:
+                        500 <= y <= 510 + exit_text.get_height() + 10:
                     sys.exit(0)
+
+
+def options():
+    size = width, height = 600, 600
+    screen = pygame.display.set_mode(size)
+    screen.fill(pygame.Color("grey"))
+    running = True
+    with open("data/volume.txt") as volume_file:
+        volume = int(volume_file.readline())
+    with open("data/speed.txt") as speed_file:
+        speed = float(speed_file.readline())
+    volume_file = open("data/volume.txt", "w")
+    speed_file = open("data/speed.txt", "w")
+    font_options = pygame.font.Font(None, 35)
+    volume_text = font_options.render("Громкость", True, pygame.Color("red"))
+    screen.blit(volume_text, (50, 150))
+    volume_number = font_options.render(str(volume), True, pygame.Color("red"))
+    screen.blit(volume_number, (500 - volume_number.get_width() // 2, 150))
+    speed_text = font_options.render("Интервал падения фигуры", True, pygame.Color("red"))
+    screen.blit(speed_text, (50, 250))
+    speed_number = font_options.render(str(speed), True, pygame.Color("red"))
+    screen.blit(speed_number, (500 - speed_number.get_width() // 2, 250))
+    minus_text = font_options.render("-", True, pygame.Color("red"))
+    screen.blit(minus_text, (500 - volume_number.get_width() // 2 - 30, 150))
+    screen.blit(minus_text, (500 - volume_number.get_width() // 2 - 30, 250))
+    plus_text = font_options.render("+", True, pygame.Color("red"))
+    screen.blit(plus_text, (500 + volume_number.get_width() // 2 + 30, 150))
+    screen.blit(plus_text, (500 + volume_number.get_width() // 2 + 30, 250))
+    font_back = pygame.font.Font(None, 30)
+    back_text = font_back.render("Вернуться", True, pygame.Color("red"))
+    screen.blit(back_text, (300 - back_text.get_width() // 2, 400))
+    pygame.draw.rect(screen, pygame.Color("red"), (300 - back_text.get_width() // 2 - 10, 390,
+                                                   back_text.get_width() + 20, back_text.get_height() + 20), 1)
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                volume_file.write(str(volume))
+                volume_file.close()
+                speed_file.write(str(speed))
+                speed_file.close()
+                sys.exit(0)
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+                if 500 - volume_number.get_width() // 2 - 30 <= x <= \
+                        500 - volume_number.get_width() // 2 - 30 + minus_text.get_width() and \
+                        150 <= y <= 150 + minus_text.get_height():
+                    volume = max(0, volume - 10)
+                    pygame.mixer.music.set_volume(volume / 100)
+                if 500 + volume_number.get_width() // 2 + 30 <= x <= \
+                        500 + volume_number.get_width() // 2 + 30 + plus_text.get_width() and \
+                        150 <= y <= 150 + plus_text.get_height():
+                    volume = min(100, volume + 10)
+                    pygame.mixer.music.set_volume(volume / 100)
+                if 500 - speed_number.get_width() // 2 - 30 <= x <= \
+                        500 - speed_number.get_width() // 2 - 30 + minus_text.get_width() and \
+                        250 <= y <= 250 + minus_text.get_height():
+                    speed = max(0.5, speed - 0.5)
+                if 500 + speed_number.get_width() // 2 + 30 <= x <= \
+                        500 + speed_number.get_width() // 2 + 30 + plus_text.get_width() and \
+                        250 <= y <= 250 + minus_text.get_height():
+                    speed = min(3.0, speed + 0.5)
+                if 300 - back_text.get_width() // 2 - 10 <= x <= 300 + back_text.get_width() // 2 + 10 and \
+                        390 <= y <= 400 + back_text.get_height() + 10:
+                    volume_file.write(str(volume))
+                    volume_file.close()
+                    speed_file.write(str(speed))
+                    speed_file.close()
+                    running = False
+                    beginning()
+        screen.fill(pygame.Color("grey"))
+        screen.blit(volume_text, (50, 150))
+        screen.blit(speed_text, (50, 250))
+        screen.blit(back_text, (300 - back_text.get_width() // 2, 400))
+        pygame.draw.rect(screen, pygame.Color("red"), (300 - back_text.get_width() // 2 - 10, 390,
+                                                       back_text.get_width() + 20, back_text.get_height() + 20), 1)
+        volume_number = font_options.render(str(volume), True, pygame.Color("red"))
+        screen.blit(volume_number, (500 - volume_number.get_width() // 2, 150))
+        speed_number = font_options.render(str(speed), True, pygame.Color("red"))
+        screen.blit(speed_number, (500 - speed_number.get_width() // 2, 250))
+        screen.blit(minus_text, (500 - volume_number.get_width() // 2 - 30, 150))
+        screen.blit(minus_text, (500 - volume_number.get_width() // 2 - 30, 250))
+        screen.blit(plus_text, (500 + volume_number.get_width() // 2 + 30, 150))
+        screen.blit(plus_text, (500 + volume_number.get_width() // 2 + 30, 250))
+        pygame.display.flip()
 
 
 def records():
@@ -490,6 +592,8 @@ def main():
         name = player_name()
         full_sound = pygame.mixer.Sound("data/full.wav")
         music = choice(MELODIES)
+        with open("data/speed.txt") as speed_file:
+            speed = float(speed_file.readline())
         pygame.mixer.music.load("data/" + music + ".mp3")
         pygame.mixer.music.play(-1)
         size = width, height = 600, 600
@@ -497,7 +601,7 @@ def main():
         board = Board(10, 15)
         board.set_view(75, 100, 23)
         running = True
-        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        pygame.time.set_timer(pygame.USEREVENT, int(speed * 1000))
         font_text = pygame.font.Font(None, 35)
         font_number_text = pygame.font.Font(None, 30)
         count_text = font_text.render("Счёт:", True, pygame.Color("red"))
@@ -511,7 +615,7 @@ def main():
                     while current_figure.is_intersection():
                         current_figure.current_pos = current_figure.current_pos[0], current_figure.current_pos[1] - 1
                     running = False
-                pygame.time.set_timer(pygame.USEREVENT, 1000)
+                pygame.time.set_timer(pygame.USEREVENT, int(speed * 1000))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit(0)
@@ -531,6 +635,8 @@ def main():
                         current_figure.rotate_right()
                 if event.type == pygame.USEREVENT:
                     current_figure.move_down(full_sound)
+            if board.passive_figures and board.passive_figures[-1].current_pos[1] == 0:
+                running = False
             screen.fill(pygame.Color("grey"))
             board.render(screen)
             count_number_text = font_number_text.render(str(board.score), True, pygame.Color("red"))
